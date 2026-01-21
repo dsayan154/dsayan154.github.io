@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Sayan Das</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #151515;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #00d4ff;
+            --accent-hover: #00b8e6;
+            --border: #2a2a2a;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #0a0a0a;
+            --text-secondary: #666666;
+            --accent: #0088cc;
+            --accent-hover: #006699;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: var(--bg-primary);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            text-decoration: none;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Main Content */
+        main {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        /* Blog List View */
+        #blog-list {
+            padding: 4rem 0;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .blog-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .blog-card .date {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .blog-card .excerpt {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .blog-card .read-more {
+            color: var(--accent);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        /* Blog Post View */
+        #blog-post {
+            display: none;
+            padding: 4rem 0;
+        }
+
+        #blog-post.active {
+            display: block;
+        }
+
+        .post-header {
+            margin-bottom: 3rem;
+        }
+
+        .post-meta {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .post-title {
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .post-content {
+            max-width: 800px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Markdown Styles */
+        .post-content h1 {
+            font-size: 2.5rem;
+            margin: 2rem 0 1rem;
+        }
+
+        .post-content h2 {
+            font-size: 2rem;
+            margin: 1.8rem 0 1rem;
+            color: var(--accent);
+        }
+
+        .post-content h3 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 0.8rem;
+        }
+
+        .post-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .post-content ul, .post-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content code {
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .post-content pre {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .post-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .post-content blockquote {
+            border-left: 4px solid var(--accent);
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .post-content a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .post-content a:hover {
+            text-decoration: underline;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .post-content hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .theme-toggle {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .page-title, .post-title {
+                font-size: 2rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .post-content {
+                font-size: 1rem;
+            }
+
+            .post-content h1 {
+                font-size: 2rem;
+            }
+
+            .post-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .post-content h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">SD</a>
+            <div class="nav-right">
+                <a href="index.html" class="back-link">← Back to Portfolio</a>
+                <button class="theme-toggle" onclick="toggleTheme()">☀️ / 🌙</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Blog List View -->
+        <section id="blog-list" class="container">
+            <h1 class="page-title">Technical Blog</h1>
+            <p class="page-subtitle">Thoughts on DevOps, Cloud Architecture, and Infrastructure</p>
+            <div id="blog-grid" class="blog-grid">
+                <div class="loading">Loading posts...</div>
+            </div>
+        </section>
+
+        <!-- Blog Post View -->
+        <section id="blog-post" class="container">
+            <div class="post-header">
+                <div class="post-meta" id="post-meta"></div>
+                <h1 class="post-title" id="post-title"></h1>
+            </div>
+            <div class="post-content" id="post-content"></div>
+        </section>
+    </main>
+
+    <script>
+        // Blog posts metadata
+        const blogPosts = [
+            {
+                id: 'kubernetes-monitoring',
+                title: 'Building a Scalable Monitoring Stack with Prometheus and Thanos',
+                date: '2024-01-15',
+                excerpt: 'Learn how to architect a highly available monitoring solution that scales across multiple Kubernetes clusters using Prometheus and Thanos.',
+                file: 'posts/kubernetes-monitoring.md'
+            },
+            {
+                id: 'aws-infrastructure',
+                title: 'Infrastructure as Code Best Practices with AWS CloudFormation',
+                date: '2024-01-10',
+                excerpt: 'Explore patterns and anti-patterns when building cloud infrastructure using CloudFormation templates and Service Catalog.',
+                file: 'posts/aws-infrastructure.md'
+            },
+            {
+                id: 'cicd-pipeline',
+                title: 'Designing Reusable CI/CD Pipeline Components',
+                date: '2024-01-05',
+                excerpt: 'A deep dive into creating modular, reusable pipeline components that enable developer self-service while maintaining security and compliance.',
+                file: 'posts/cicd-pipeline.md'
+            }
+        ];
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme === 'light' ? 'light' : 'dark');
+
+        // Render blog list
+        function renderBlogList() {
+            const grid = document.getElementById('blog-grid');
+            grid.innerHTML = blogPosts.map(post => `
+                <div class="blog-card" onclick="loadPost('${post.id}')">
+                    <div class="date">${formatDate(post.date)}</div>
+                    <h2>${post.title}</h2>
+                    <p class="excerpt">${post.excerpt}</p>
+                    <a class="read-more">Read more →</a>
+                </div>
+            `).join('');
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Load and render a blog post
+        async function loadPost(postId) {
+            const post = blogPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            // Show post view, hide list view
+            document.getElementById('blog-list').style.display = 'none';
+            document.getElementById('blog-post').classList.add('active');
+
+            // Update post metadata
+            document.getElementById('post-meta').textContent = formatDate(post.date);
+            document.getElementById('post-title').textContent = post.title;
+
+            // Fetch and render markdown
+            try {
+                const response = await fetch(post.file);
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+                document.getElementById('post-content').innerHTML = html;
+            } catch (error) {
+                document.getElementById('post-content').innerHTML = `
+                    <p style="color: var(--text-secondary);">
+                        <strong>Note:</strong> This is a demo. To see this post, create a markdown file at <code>${post.file}</code>
+                    </p>
+                    <p style="color: var(--text-secondary);">
+                        For now, here's some sample content:
+                    </p>
+                    <h2>Introduction</h2>
+                    <p>This is where your blog post content would appear. Write your posts in markdown format and place them in the <code>posts/</code> folder.</p>
+                    <h2>Example Code</h2>
+                    <pre><code>kubectl get pods -n monitoring
+helm install prometheus prometheus-community/prometheus</code></pre>
+                    <p>Your markdown will be automatically converted to beautiful HTML!</p>
+                `;
+            }
+
+            // Update URL without reload
+            window.history.pushState({ postId }, '', `?post=${postId}`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Handle back button
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.postId) {
+                loadPost(e.state.postId);
+            } else {
+                showBlogList();
+            }
+        });
+
+        // Show blog list
+        function showBlogList() {
+            document.getElementById('blog-list').style.display = 'block';
+            document.getElementById('blog-post').classList.remove('active');
+            window.history.pushState({}, '', 'blog.html');
+        }
+
+        // Initialize
+        renderBlogList();
+
+        // Check if URL has post parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('post');
+        if (postId) {
+            loadPost(postId);
+        }
+    </script>
+</body>
+</html>
